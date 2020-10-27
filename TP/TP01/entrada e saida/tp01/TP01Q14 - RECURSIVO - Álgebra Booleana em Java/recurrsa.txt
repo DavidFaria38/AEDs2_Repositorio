@@ -1,0 +1,21 @@
+    // static String formatEntrada(String str, int i){
+    //     String newStr = "";
+    //     if(i < str.length()){
+    //         if(str.charAt(i) == ' ' || str.charAt(i) == ','){
+    //             newStr += formatEntrada(str, i+1);
+    //         }
+    //         else if(str.charAt(i) == 'a' || str.charAt(i) == 'n'){
+    //             newStr += str.charAt(i); 
+    //             newStr += formatEntrada(str, i+3);
+    //         }
+    //         else if(str.charAt(i) == 'o'){
+    //             newStr += str.charAt(i);
+    //             newStr += formatEntrada(str, i+2);
+    //         }
+    //         else{
+    //             newStr += str.charAt(i);
+    //             newStr += formatEntrada(str, i+1);
+    //         }
+    //     } // end if
+    //     return newStr;
+    // } // end formatEntrada()
