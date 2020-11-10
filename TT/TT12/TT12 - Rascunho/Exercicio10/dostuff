@@ -1,0 +1,5 @@
+find -name "*.class" -type f -delete
+
+javac Run_Agenda.java
+
+echo "Sucefully done ;)"

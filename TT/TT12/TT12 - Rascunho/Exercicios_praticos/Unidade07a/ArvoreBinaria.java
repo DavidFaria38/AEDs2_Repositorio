@@ -14,6 +14,14 @@ public class ArvoreBinaria {
 	}
 
 	/**
+	 * Metodo publico que altera o valor da raiz
+	 * @param value - No da nova raiz
+	 */
+	public void changeRaizTo(No value){
+		raiz = value;
+	} // end changeRaizTo()
+
+	/**
 	 * Metodo publico iterativo para pesquisar elemento.
 	 * 
 	 * @param x Elemento que sera procurado.
@@ -367,6 +375,7 @@ public class ArvoreBinaria {
 
 	public void showArvore() {
 		showArvore(raiz);
+		System.out.println("");
 	} // end showArvore()
 
 	public void showArvore(No i) {
@@ -456,6 +465,34 @@ public class ArvoreBinaria {
 		} // end if
 		return resp;
 	} // end nElementos()
+	
+	
+	/* Exercicio(6) - Slide 240 */
+	/* Pode ser encontrado nos metodos de Exercicios.java */
+	
+
+	/* Exercicio(7) - Slide 241 */
+	/* Outra parte do codigo pode ser encontrada nos metodos de Exercicios.java */
+	public No toArvoreBinaria(Celula_ListaSimples i, Celula_ListaDupla j){
+		while((i != null) || (j != null)){
+			try {
+				inserir(i.elemento);
+			} catch (Exception e) {}
+			try {
+				inserir(j.elemento);
+			} catch (Exception e) {}
+			
+			if(i != null)
+				i = i.prox;
+			if(j != null)
+			 	j = j.prox;
+		} // end for
+
+		return raiz;
+	} // end toArvoreBinaria()
+	
+	
+
 	
 	/* =============================================================== */
 	/* =================== (FIM) Exercicios praticos ================= */
