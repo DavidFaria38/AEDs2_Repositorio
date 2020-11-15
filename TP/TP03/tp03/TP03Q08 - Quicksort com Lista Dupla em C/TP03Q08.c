@@ -2,7 +2,42 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <time.h>
 
+
+/* ================= (Inicio) Definições Struct StatusAlgoritmo ================= */
+typedef struct StatusOrdenacao{
+	int comp;
+	int mov;
+	clock_t start;
+	clock_t end;
+} StatusOrd;
+
+StatusOrd* newStatusOrd(){ 
+	StatusOrd* newSO = (StatusOrd*)malloc(sizeof(StatusOrd));
+
+	newSO->comp = 0;
+	newSO->mov = 0;
+
+	return newSO;
+} // end newStatusOrd()
+
+void startClock(StatusOrd* status){ status->start = clock();}
+void endClock(StatusOrd* status){   status->end = clock();}
+
+/**
+ * - Função que grava em um arquivo o tempo de execução do algoritmo de ordenação, movimentações e comparações.
+ * @param status - Struct contendo os dados para serem armazenados.
+ * @param fileName - Nome do arquivo.
+ */
+double recordTime(StatusOrd* status, char* fileName){
+	FILE* f = fopen(fileName, "w");
+	double runTime = (double)(status->end - status->start)/CLOCKS_PER_SEC;
+	fprintf(f, "%s\t%lf\t%i\t%i", "699415", runTime, status->comp, status->mov);
+	fclose(f);
+	return runTime;
+} // end recordTime()
+/* ================= (FIM) Definições Struct StatusAlgoritmo ================= */
 
 /* ============================================================================= */
 /* ===================== (Inicio) Definições Struct player ===================== */
@@ -62,8 +97,7 @@ Jogador* newJogadorContent(int id, char* nome, int alt, int peso, char* uni, int
  * @param jogador - Struct a ser impressa.
  */
 void imprimir(Jogador* jogador){
-	// printf("[%d ## %s ## %d ## %d ## %d ## %s ## %s ## %s]\n", jogador->id, jogador->nome, jogador->altura, jogador->peso, jogador->anoNascimento, jogador->universidade, jogador->cidadeNascimento, jogador->estadoNascimento);
-	printf("## %s ## %d ## %d ## %d ## %s ## %s ## %s ##\n", jogador->nome, jogador->altura, jogador->peso, jogador->anoNascimento, jogador->universidade, jogador->cidadeNascimento, jogador->estadoNascimento);
+	printf("[%d ## %s ## %d ## %d ## %d ## %s ## %s ## %s]\n", jogador->id, jogador->nome, jogador->altura, jogador->peso, jogador->anoNascimento, jogador->universidade, jogador->cidadeNascimento, jogador->estadoNascimento);
 } // end imprimir()
 
 /**
@@ -270,170 +304,183 @@ Jogador* ler(int idInput){
 /* ===================== (FIM) Definições Struct player ===================== */
 /* ========================================================================== */
 
+typedef struct CelulaDupla{
+	Jogador* elemento;
+	struct CelulaDupla* prox;
+	struct CelulaDupla* ant;
+} Celula;
+
+Celula* newCelula(Jogador* player){
+	Celula* nova = (Celula*)malloc(sizeof(Celula));
+	nova->elemento = clone(player);
+	nova->prox = nova->ant = NULL;
+	return nova;
+} // end newCelula()
 
 
-
-/* =========================================================================== */
-/* ===================== (Inicio) Definições ListaLinear ===================== */
-/* =========================================================================== */
-
-typedef struct ListaLinear {
-	Jogador** array;
-	int tamanho;
-	int limite;
+typedef struct ListaDinamicaDE{
+	Celula* primeiro;
+	Celula* ultimo;
 } Lista;
 
-/**
- * Construtor
- * 
- * @param limite 
- * @return Lista 
- */
-Lista newLista(int limite){
-	Lista lista;
-
-	lista.array = (Jogador**)malloc(limite * sizeof(Jogador));
-	lista.tamanho = 0;
-	lista.limite = limite;
-
-	for(int i = 0; i < limite; i++)
-		lista.array[i] = newJogador();
-
-	return lista;
-} // end lista
+Lista newLista(){
+	Lista nova;
+	nova.primeiro = newCelula(newJogador());
+	nova.ultimo   = nova.primeiro;
+	return nova;
+} // end newLista()
 
 /**
- * Funcao que insere um jogador de uma lista, no inicio do mesmo.
- * 
- * @param lista 
- * @param player 
+ * - Função que realiza a troca de elementos em uma lista dupla.
+ * @param celula1 - celula1 troca elemeto com celula2
+ * @param celula2 - celula2 troca elemeto com celula1
  */
-void inserirInicio(Lista* lista, Jogador* player){
-	if(lista->tamanho >= lista->limite){
-		printf("ERRO: lista esta totalmente populada.");
-	} else{
-		for(int i = lista->tamanho; i > 0; i--){
-			lista->array[i] = lista->array[i-1];
-		} // end for
-
-		lista->array[0] = clone(player);
-		lista->tamanho++;
-	} // end else
-} // end inserirInicio()
-/**
- * Funcao que insere um jogador de uma lista, no final do mesmo.
- * 
- * @param lista 
- * @param player 
- */
-void inserirFim(Lista* lista, Jogador* player){
-	if(lista->tamanho >= lista->limite){
-		printf("ERRO: lista esta totalmente populada.");
-	} else{
-		lista->array[lista->tamanho] = clone(player);
-		lista->tamanho++;
-	} // end else
-} // end inserirFim()
-/**
- * Funcao que insere um jogador de uma lista, na posicao X.
- * 
- * @param lista 
- * @param player 
- * @param posicao 
- */
-void inserir(Lista* lista, Jogador* player, int posicao){
-	if(lista->tamanho >= lista->limite){
-		printf("ERRO: lista esta totalmente populada.");
-	} else if(((posicao >= lista->limite) && (posicao < 0)) || (posicao > lista->tamanho)){
-		printf("ERRO: posicao na lista invalida.");
-	} else{
-		for(int i = lista->tamanho; i > posicao; i--){
-			lista->array[i] = lista->array[i-1];
-		} // end for
-
-		lista->array[posicao] = clone(player);
-		lista->tamanho++;
-	} //end else
-} // end inserir(->
-
-/**
- * Funcao que remove um jogador de uma lista, no inicio da mesma, e o retorna.
- * 
- * @param lista 
- * @return Jogador* 
- */
-Jogador* removerInicio(Lista* lista){
-	Jogador* removed = NULL;
-	if(lista->tamanho <= 0){
-		printf("ERRO: Lista nao esta populada.");
-	} else{
-		removed = lista->array[0];
-		for(int i = 0; i < lista->tamanho; i++){
-			lista->array[i] = lista->array[i+1];
-		} // end for
-		lista->tamanho--;
-	} // end else
-
-	return removed;
-} // end removerInicio()
-/**
- * Funcao que remove um jogador de uma lista, no final da mesma, e o retorna.
- * 
- * @param lista 
- * @return Jogador* 
- */
-Jogador* removerFim(Lista* lista){
-	Jogador* removed = NULL;
-	if(lista->tamanho <= 0){
-		printf("ERRO: Lista nao esta populada.");
-	} else{
-		removed = lista->array[lista->tamanho - 1];
-		lista->array[lista->tamanho - 1] = NULL;
-		lista->tamanho--;
-	} // end else
-
-	return removed;
-} // end removerFim()
-/**
- * Funcao que remove um jogador de uma lista, na posicao X, e o retorna.
- * 
- * @param lista 
- * @param posicao 
- * @return Jogador* 
- */
-Jogador* remover(Lista* lista, int posicao){
-	Jogador* removed = NULL;
-	if((posicao < 0) && (posicao > lista->tamanho)){
-		printf("ERRO: posicao na lista invalida.");
-	} else{
-		removed = lista->array[posicao];
-		for(int i = posicao; i < lista->tamanho; i++){
-			lista->array[i] = lista->array[i+1];
-		} // end for
-		lista->tamanho--;
-	} // end else
-
-	return removed;
-} // end remover()
+void swapCelula(Celula* celula1, Celula* celula2){
+	Jogador* tmp = clone(celula1->elemento);
+	celula1->elemento = clone(celula2->elemento);
+	celula2->elemento = clone(tmp);
+	tmp = NULL;
+	free(tmp);
+} // end swap()
 
 /**
  * Funcao que mostra na tela os jogadores na lista
- * 
- * @param lista 
+ * @param lista - lista dupla
  */
 void mostrarLista(Lista* lista){
-	for(int i = 0; i < lista->tamanho; i++){
-		printf("[%i] ", i); 
-		imprimir(lista->array[i]);
+	for(Celula* i = lista->primeiro->prox; i != NULL ; i = i->prox){
+		imprimir(i->elemento);
 	} // end for
 } // end mostrarLista()
 
-/* =========================================================================== */
-/* ======================= (FIM) Definições ListaLinear ====================== */
-/* =========================================================================== */
+/**
+ * - Funcao que retorna o tamanho (inteiro) de uma lista dupla.
+ * 
+ * @param lista - lista dupla
+ * @return int - tamanho da lista
+ */
+int tamanho(Lista* lista){
+	int tam = 0;
+	for(Celula* i = lista->primeiro->prox; i != lista->ultimo; i = i->prox, tam++);
+	return tam+1;
+} // end tamanho()
 
+/**
+ * @brief Get the Celula At Position object
+ * 
+ * @param lista 
+ * @param pos 
+ * @return Celula* 
+ */
+Celula* getCelulaAtPosition(Lista* lista, int pos){
+	Celula* result;
+	int tam = tamanho(lista);
+	// printf("estrou getCelulaAtPosiotion pos: %i  tam: %i\n\n", pos, tam);
+	
+	if((pos < 0) && (pos > tam)){
+		printf("ERRO: Posicao [%i] invalida em lista com tamanho [%i]\n", pos, tam);
+	} else if(pos == 0){
+		result = lista->primeiro->prox;
+	} else if(pos == tam-1){
+		result = lista->ultimo;
+	} else{
+		Celula* i = lista->primeiro->prox;
+		for(int j = 0; j < pos; j++, i = i->prox);
+		result = i;
+		i = NULL;
+		free(i);
+	} // end else
 
+	return result;
+} // end getCelulaAtPosition()
 
+void inserirInicio(Lista* lista, Jogador* player){
+	Celula* tmp = newCelula(player);
+
+	tmp->ant = lista->primeiro;
+	tmp->prox = lista->primeiro->prox;
+	lista->primeiro->prox = tmp;
+	if(lista->primeiro == lista->ultimo){
+		lista->ultimo = tmp;
+	} else{
+		tmp->prox->ant = tmp;
+	} // end else
+	tmp = NULL;
+} // end inserirInicio()
+void inserirFim(Lista* lista, Jogador* player){
+	lista->ultimo->prox = newCelula(player);
+	lista->ultimo->prox->ant = lista->ultimo;
+	lista->ultimo = lista->ultimo->prox;
+} // end inserirFim()
+void inserir(Lista* lista, Jogador* player, int posicao){
+	int tam = tamanho(lista);
+	if((posicao < 0) && (posicao > tam)){
+		printf("ERRO: Posicao invalida\n");
+	} else if(posicao == 0){
+		inserirInicio(lista, player);
+	} else if(posicao == tam){
+		inserirFim(lista, player);
+	} else{
+		Celula* tmp = newCelula(player);
+		Celula* i = lista->primeiro->prox;
+		for(int j = 0; j < posicao; j++, i = i->prox)
+
+		tmp->ant = i;
+		tmp->prox = i->prox;
+		tmp->ant->prox = tmp->prox->ant = tmp;
+		tmp = i = NULL;
+	} // end else
+} // end inserir()
+
+Jogador* RemoverInicio(Lista* lista){
+	Jogador* playerTmp;
+	if(lista->primeiro == lista->ultimo){
+		printf("ERRO: (RI) Lista nao esta populada\n");
+	} else{
+		Celula* celTmp = lista->primeiro->prox;
+		playerTmp = celTmp->elemento;
+		lista->primeiro->prox = celTmp->prox;
+		celTmp->prox->ant = celTmp->ant;
+		celTmp = celTmp->ant = celTmp->prox = NULL;
+	} // end else
+	return playerTmp;
+} // end RemoverInicio()
+Jogador* RemoverFim(Lista* lista){
+	Jogador* playerTmp;
+	if(lista->primeiro == lista->ultimo){
+		printf("ERRO: (RF) Lista nao esta populada\n");
+	} else{
+		Celula* celTmp = lista->ultimo;
+		playerTmp = celTmp->elemento;
+		lista->ultimo = celTmp->ant;
+		lista->ultimo->prox = celTmp = celTmp->ant = NULL;
+	} //end else
+	return playerTmp;
+} // end RemoverFim()
+Jogador* Remover(Lista* lista, int posicao){
+	Jogador* playerTmp;
+	int tam = tamanho(lista);
+	if((posicao < 0) && (posicao > tam)){
+		printf("ERRO: (R*) Posicao invalida\n");
+	} else if(posicao == 0){
+		RemoverInicio(lista);
+	} else if(posicao == tam){
+		RemoverFim(lista);
+	} else{
+		Celula* i = lista->primeiro->prox;
+		
+		for(int j = 0; j < posicao; i = i->prox);
+
+		playerTmp = i->elemento;
+		i->prox->ant = i->ant;
+		i->ant->prox = i->prox;
+		i = i->prox = i->ant = NULL;
+	} // end else
+	return playerTmp;
+} // end Remover()
+/* ========================================================================== */
+/* ==================== (INICIO) Definições Struct player =================== */
+/* ========================================================================== */
 
 
 /**
@@ -446,142 +493,8 @@ bool isFIM(char* str){
 } // end isFIM()
 
 /**
- * Metodo retorna o codigo de comando de uma string.
- * 
- * @param line 
- * @return int 
- */
-int getCodigo(char* line){
-	int result = 0;
-	char strCodigo[3];
-	strCodigo[0] = line[0];
-	strCodigo[1] = line[1];
-
-	if(strcmp(strCodigo, "II") == 0){
-		result = 1;
-	} else if(strcmp(strCodigo, "IF") == 0){
-		result = 2;
-	} else if(strcmp(strCodigo, "I*") == 0){
-		result = 3;
-	} else if(strcmp(strCodigo, "RI") == 0){
-		result = 4;
-	} else if(strcmp(strCodigo, "RF") == 0){
-		result = 5;
-	} else if(strcmp(strCodigo, "R*") == 0){
-		result = 6;
-	} // end else if
-
-	// printf("Codigo: %s - %s (%i)\n", line, strCodigo, result);
-
-	return result;
-} // end getCodigo()
-
-/**
- * Metodo retorna a ID de uma string.
- * 
- * @param codigo 
- * @param line 
- * @return int 
- */
-int getIdentidade(int codigo, char* line){
-	int result = 0;
-	if(codigo >= 1 && codigo <= 3){
-		char* strLine = (char*)malloc(25 * sizeof(char));
-		char* strId;
-
-		strcpy(strLine, line);
-
-		if(codigo != 3){
-			strId = strtok(strLine, " ");
-			strId = strtok('\0' , " ");
-
-			result = atoi(strId);
-		} else{
-			strId = strtok(strLine, " ");
-			strId = strtok(NULL , " ");
-			strId = strtok(NULL , " ");
-
-			result = atoi(strId);
-		} // end else
-
-		free(strLine);
-	} // end else
-
-	return result;
-} // end getIdentidade()
-
-/**
- * Metodo retorna um numero inteiro de uma string
- * 
- * @param codigo 
- * @param line 
- * @return int - posicao
- */
-int getPosicao(int codigo, char* line){
-	int result = 0;
-	
-	if(codigo == 3 || codigo == 6){
-		char* strLine = (char*)malloc(40 * sizeof(char));
-		char* strPosicao;
-
-		strcpy(strLine, line);
-
-		strPosicao = strtok(strLine, " ");
-		strPosicao = strtok(NULL , " ");
-
-		result = atoi(strPosicao);
-		
-	} // end else
-
-	return result;
-} // end getIdentidade()
-
-/**
- * Metodo que manipula e efetua as acoes na lista.
- * 
- * @param lista - lista a ser manipulada
- * @param codigo - codigo de comando
- * @param id - id a ser inserido
- * @param posicao - posicao da lista a ser inserida/removida
- */
-void manipularLista(Lista* lista, int codigo, int id, int posicao){
-	Jogador* tmp = NULL;
-
-	switch (codigo){
-	case 1:
-		inserirInicio(lista, ler(id));
-		break;
-	case 2:
-		inserirFim(lista, ler(id));
-		break;
-	case 3:
-		inserir(lista, ler(id), posicao);
-		break;
-	case 4:
-		tmp = removerInicio(lista);
-		printf("(R) %s\n", tmp->nome);
-		tmp = NULL;	
-		break;
-	case 5:
-		tmp = removerFim(lista);
-		printf("(R) %s\n", tmp->nome);
-		tmp = NULL;	
-		break;
-	case 6:
-		tmp = remover(lista, posicao);
-		printf("(R) %s\n", tmp->nome);
-		tmp = NULL;	
-		break;
-	
-	default:
-		break;
-	} // end switch
-
-} // end manipularLista()
-
-/**
  * - Função que lê a priemira parte da entrada padrão. 
- * @param lista - lista linear.
+ * @param fila - fila linear.
  */
 void getPrimeiraEntrada(Lista* lista){
 	int idInt;
@@ -592,60 +505,88 @@ void getPrimeiraEntrada(Lista* lista){
 	while(!isFIM(idInputStr)){
 		idInt = atoi(idInputStr);
 		
+		// printf("%i \n", idInt);
 		inserirFim(lista, ler(idInt));
 
-		// printf("%s\n", lista.array[lista.tamanho - 1]->nome);
-		
 		scanf("%s", idInputStr);
 	} // end while
-
 	free(idInputStr);
 } // end getPrimeiraEntrada()
 
 /**
- * - Função que lê a segunda parte da entrada padrão. 
- * @param lista - lista linear.
+ * - Função realiza ordenação de players tendo como chave primaria o Estado de nascimento do jogador
+ * @param lista - Lista contendo jogadores.
+ * @param esq - Limitador do algoritmo
+ * @param dir - Limitador do algoritmo
+ * @param status - Struct usada para armazenar comparações e movimentações
  */
-void getSegundaEntrada(Lista* lista){
-	int loop, id, posicao;
-	int codigo = 0;
-	char* inputStr = (char*)malloc(25 * sizeof(char));
-	/* diagrama de codigos para comando: */ 
-	// (II) InserirInicio = 1 
-	// (IF) InserirFim = 2 
-	// (I*) Inserir = 3 
-	// (RI) RemoverInicio = 4 
-	// (RF) RemoverFim = 5 
-	// (R*) Remover = 6 
+void quicksortRecursao(Lista* lista, int esq, int dir, StatusOrd *status){
+	int i = esq, j = dir;
+	char* pivoEstado = strdup(getCelulaAtPosition(lista, ((esq+dir)/2))->elemento->estadoNascimento);
+	char* pivoNome = strdup(getCelulaAtPosition(lista, ((esq+dir)/2))->elemento->nome);
+	status->mov+=2;
 
-	scanf("%i", &loop);
+	while(i <= j){
+		while((strcmp(getCelulaAtPosition(lista, i)->elemento->estadoNascimento, pivoEstado) < 0 )|| 
+			 (strcmp(getCelulaAtPosition(lista, i)->elemento->estadoNascimento, pivoEstado) == 0  && 
+			  strcmp(getCelulaAtPosition(lista, i)->elemento->nome, pivoNome) < 0)){
+			// printf("i: %i\n", i);
+			// printf("Nome: %s\n", getCelulaAtPosition(lista, i)->elemento->nome);
+			// printf("%s - %s\n", getCelulaAtPosition(lista, i)->elemento->estadoNascimento, pivoEstado);
+			// printf("(%s - %s)\n\n", getCelulaAtPosition(lista, i+1)->elemento->estadoNascimento, pivoEstado);
+			status->comp += 3;
+			i++;
+		}
+		while((strcmp(getCelulaAtPosition(lista, j)->elemento->estadoNascimento, pivoEstado) > 0) || 
+			 (strcmp(getCelulaAtPosition(lista, j)->elemento->estadoNascimento, pivoEstado) == 0  && 
+			  strcmp(getCelulaAtPosition(lista, j)->elemento->nome, pivoNome) > 0)){
+			// printf("j: %i\n", j);
+			// printf("Nome: %s\n", getCelulaAtPosition(lista, j)->elemento->nome);
+			// printf("%s - %s\n", getCelulaAtPosition(lista, j)->elemento->estadoNascimento, pivoEstado);
+			// printf("(%s - %s)\n\n", getCelulaAtPosition(lista, j-1)->elemento->estadoNascimento, pivoEstado);
+			status->comp += 3;
+			j--;
+		}
 
-	while(loop >= 0){
-		// getchar();
-		fgets(inputStr, 25, stdin);
-		// scanf("%[^\n]", inputStr);
-		codigo = getCodigo(inputStr);
-		id = getIdentidade(codigo, inputStr);
-		posicao = getPosicao(codigo, inputStr);
-
-		manipularLista(lista, codigo, id, posicao);
-		
-		loop--;
+		if(i <= j){
+			swapCelula(getCelulaAtPosition(lista, i), getCelulaAtPosition(lista, j));
+			// status->mov+=3;
+			i++, j--;
+		} // end if
 	} // end while
 
-	free(inputStr);
-} // end getSegundaEntrada()
+	if(esq < j)
+		quicksortRecursao(lista, esq, j, status);
 
+	if(i < dir)
+		quicksortRecursao(lista, i, dir, status);
+
+} // end quicksortRecursao()
+
+/**
+ * - Função realiza ordenação de players tendo como chave primaria o Estado de nascimento do jogador
+ * @param lista - lista dupla contendo os jogadores.
+ * @param status - Struct usada para armazenar comparações e movimentações
+ */
+void quicksort(Lista* lista, StatusOrd *status){
+	quicksortRecursao(lista, 0, tamanho(lista) - 1, status);
+} // end quicksort()
 
 int main(void){
-	Lista listaLinear = newLista(500);
-	Lista *lista = &listaLinear;
+	StatusOrd *status = newStatusOrd();
+	Lista listaDupla = newLista();
+	Lista* lista = &listaDupla;
 
-	getPrimeiraEntrada(lista);	
-	getSegundaEntrada(lista);
+	getPrimeiraEntrada(lista);
+
+
+	startClock(status);
+	quicksort(lista, status);
+	endClock(status);
 
 	mostrarLista(lista);
 
+	recordTime(status, strdup("699415_quicksort2.txt"));
 	return 0;
 } // end main()
 

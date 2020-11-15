@@ -272,168 +272,108 @@ Jogador* ler(int idInput){
 
 
 
-
 /* =========================================================================== */
-/* ===================== (Inicio) Definições ListaLinear ===================== */
+/* ===================== (Inicio) Definições filaCircular ===================== */
 /* =========================================================================== */
 
-typedef struct ListaLinear {
+typedef struct FilaCircular {
 	Jogador** array;
 	int tamanho;
-	int limite;
-} Lista;
+	int primeiro;
+	int ultimo;
+} Fila;
 
 /**
  * Construtor
  * 
  * @param limite 
- * @return Lista 
+ * @return fila 
  */
-Lista newLista(int limite){
-	Lista lista;
+Fila newFila(int len){
+	Fila fila;
 
-	lista.array = (Jogador**)malloc(limite * sizeof(Jogador));
-	lista.tamanho = 0;
-	lista.limite = limite;
+	fila.array = (Jogador**)malloc((len + 1) * sizeof(Jogador));
+	fila.primeiro = fila.ultimo = 0;
+	fila.tamanho = len + 1;
 
-	for(int i = 0; i < limite; i++)
-		lista.array[i] = newJogador();
+	// for(int i = 0; i < len; i++)
+	// 	fila.array[i] = newJogador();
 
-	return lista;
-} // end lista
+	return fila;
+} // end fila
+
 
 /**
- * Funcao que insere um jogador de uma lista, no inicio do mesmo.
+ * Funcao que mostra na tela os jogadores na fila
  * 
- * @param lista 
- * @param player 
+ * @param fila 
  */
-void inserirInicio(Lista* lista, Jogador* player){
-	if(lista->tamanho >= lista->limite){
-		printf("ERRO: lista esta totalmente populada.");
-	} else{
-		for(int i = lista->tamanho; i > 0; i--){
-			lista->array[i] = lista->array[i-1];
-		} // end for
+void mostrarFila(Fila* fila){
+	int j = 0;
+	for(int i = fila->primeiro; i != (fila->ultimo % fila->tamanho); i = (i+1) % fila->tamanho){
+		printf("[%i] ", j); 
+		imprimir(fila->array[i]);
 
-		lista->array[0] = clone(player);
-		lista->tamanho++;
-	} // end else
-} // end inserirInicio()
-/**
- * Funcao que insere um jogador de uma lista, no final do mesmo.
- * 
- * @param lista 
- * @param player 
- */
-void inserirFim(Lista* lista, Jogador* player){
-	if(lista->tamanho >= lista->limite){
-		printf("ERRO: lista esta totalmente populada.");
-	} else{
-		lista->array[lista->tamanho] = clone(player);
-		lista->tamanho++;
-	} // end else
-} // end inserirFim()
-/**
- * Funcao que insere um jogador de uma lista, na posicao X.
- * 
- * @param lista 
- * @param player 
- * @param posicao 
- */
-void inserir(Lista* lista, Jogador* player, int posicao){
-	if(lista->tamanho >= lista->limite){
-		printf("ERRO: lista esta totalmente populada.");
-	} else if(((posicao >= lista->limite) && (posicao < 0)) || (posicao > lista->tamanho)){
-		printf("ERRO: posicao na lista invalida.");
-	} else{
-		for(int i = lista->tamanho; i > posicao; i--){
-			lista->array[i] = lista->array[i-1];
-		} // end for
-
-		lista->array[posicao] = clone(player);
-		lista->tamanho++;
-	} //end else
-} // end inserir(->
+		j++;
+	} // end for
+} // end mostrarFila()
 
 /**
- * Funcao que remove um jogador de uma lista, no inicio da mesma, e o retorna.
+ * Funcao que mostra na tela a media das alturas do jogadores da fila
  * 
- * @param lista 
+ * @param fila 
+ */
+void mostrarMediaAltura(Fila* fila){
+	double soma = 0;
+	int j = 0;
+	for(int i = fila->primeiro; i != (fila->ultimo) % fila->tamanho; i = (i+1) % fila->tamanho){
+		soma += fila->array[i]->altura;
+		j++;
+	} // end for
+	printf("%.0f\n", soma/j);
+} // end mostrarMediaAltura()
+
+
+/**
+ * Funcao que remove um jogador de uma fila, e o retorna.
+ * 
+ * @param fila 
  * @return Jogador* 
  */
-Jogador* removerInicio(Lista* lista){
-	Jogador* removed = NULL;
-	if(lista->tamanho <= 0){
-		printf("ERRO: Lista nao esta populada.");
+Jogador* remover(Fila* fila){
+	Jogador* tmp = NULL;
+	if(fila->tamanho <= 0){
+		printf("ERRO: fila nao esta populada.");
 	} else{
-		removed = lista->array[0];
-		for(int i = 0; i < lista->tamanho; i++){
-			lista->array[i] = lista->array[i+1];
-		} // end for
-		lista->tamanho--;
+		tmp = fila->array[fila->primeiro];
+		fila->primeiro = (fila->primeiro + 1) % fila->tamanho;
 	} // end else
 
-	return removed;
-} // end removerInicio()
-/**
- * Funcao que remove um jogador de uma lista, no final da mesma, e o retorna.
- * 
- * @param lista 
- * @return Jogador* 
- */
-Jogador* removerFim(Lista* lista){
-	Jogador* removed = NULL;
-	if(lista->tamanho <= 0){
-		printf("ERRO: Lista nao esta populada.");
-	} else{
-		removed = lista->array[lista->tamanho - 1];
-		lista->array[lista->tamanho - 1] = NULL;
-		lista->tamanho--;
-	} // end else
-
-	return removed;
-} // end removerFim()
-/**
- * Funcao que remove um jogador de uma lista, na posicao X, e o retorna.
- * 
- * @param lista 
- * @param posicao 
- * @return Jogador* 
- */
-Jogador* remover(Lista* lista, int posicao){
-	Jogador* removed = NULL;
-	if((posicao < 0) && (posicao > lista->tamanho)){
-		printf("ERRO: posicao na lista invalida.");
-	} else{
-		removed = lista->array[posicao];
-		for(int i = posicao; i < lista->tamanho; i++){
-			lista->array[i] = lista->array[i+1];
-		} // end for
-		lista->tamanho--;
-	} // end else
-
-	return removed;
+	return tmp;
 } // end remover()
 
 /**
- * Funcao que mostra na tela os jogadores na lista
+ * Funcao que insere um jogador de uma fila.
  * 
- * @param lista 
+ * @param fila 
+ * @param player 
  */
-void mostrarLista(Lista* lista){
-	for(int i = 0; i < lista->tamanho; i++){
-		printf("[%i] ", i); 
-		imprimir(lista->array[i]);
-	} // end for
-} // end mostrarLista()
+void inserir(Fila* fila, Jogador* player){
+	if(((fila->ultimo + 1) % fila->tamanho) == fila->primeiro){
+		remover(fila);
+		inserir(fila, player);
+	} else{
+		fila->array[fila->ultimo] = clone(player);
+		fila->ultimo = (fila->ultimo + 1) % fila->tamanho;
+
+		mostrarMediaAltura(fila); 
+	} // end else
+} // end inserir()
+
 
 /* =========================================================================== */
-/* ======================= (FIM) Definições ListaLinear ====================== */
+/* ======================= (FIM) Definições filaCircular ====================== */
 /* =========================================================================== */
-
-
-
 
 
 /**
@@ -453,25 +393,16 @@ bool isFIM(char* str){
  */
 int getCodigo(char* line){
 	int result = 0;
-	char strCodigo[3];
+	char strCodigo[2];
 	strCodigo[0] = line[0];
-	strCodigo[1] = line[1];
 
-	if(strcmp(strCodigo, "II") == 0){
+	if(strcmp(strCodigo, "I") == 0){
 		result = 1;
-	} else if(strcmp(strCodigo, "IF") == 0){
+	} else if(strcmp(strCodigo, "R") == 0){
 		result = 2;
-	} else if(strcmp(strCodigo, "I*") == 0){
-		result = 3;
-	} else if(strcmp(strCodigo, "RI") == 0){
-		result = 4;
-	} else if(strcmp(strCodigo, "RF") == 0){
-		result = 5;
-	} else if(strcmp(strCodigo, "R*") == 0){
-		result = 6;
 	} // end else if
 
-	// printf("Codigo: %s - %s (%i)\n", line, strCodigo, result);
+	// printf("Codigo: (%s) (%i)\n", line, result);
 
 	return result;
 } // end getCodigo()
@@ -485,24 +416,16 @@ int getCodigo(char* line){
  */
 int getIdentidade(int codigo, char* line){
 	int result = 0;
-	if(codigo >= 1 && codigo <= 3){
+	if(codigo == 1){
 		char* strLine = (char*)malloc(25 * sizeof(char));
 		char* strId;
 
 		strcpy(strLine, line);
 
-		if(codigo != 3){
-			strId = strtok(strLine, " ");
-			strId = strtok('\0' , " ");
+		strId = strtok(strLine, " ");
+		strId = strtok('\0' , " ");
 
-			result = atoi(strId);
-		} else{
-			strId = strtok(strLine, " ");
-			strId = strtok(NULL , " ");
-			strId = strtok(NULL , " ");
-
-			result = atoi(strId);
-		} // end else
+		result = atoi(strId);
 
 		free(strLine);
 	} // end else
@@ -510,65 +433,24 @@ int getIdentidade(int codigo, char* line){
 	return result;
 } // end getIdentidade()
 
-/**
- * Metodo retorna um numero inteiro de uma string
- * 
- * @param codigo 
- * @param line 
- * @return int - posicao
- */
-int getPosicao(int codigo, char* line){
-	int result = 0;
-	
-	if(codigo == 3 || codigo == 6){
-		char* strLine = (char*)malloc(40 * sizeof(char));
-		char* strPosicao;
-
-		strcpy(strLine, line);
-
-		strPosicao = strtok(strLine, " ");
-		strPosicao = strtok(NULL , " ");
-
-		result = atoi(strPosicao);
-		
-	} // end else
-
-	return result;
-} // end getIdentidade()
 
 /**
- * Metodo que manipula e efetua as acoes na lista.
+ * Metodo que manipula e efetua as acoes na fila.
  * 
- * @param lista - lista a ser manipulada
+ * @param fila - fila a ser manipulada
  * @param codigo - codigo de comando
  * @param id - id a ser inserido
- * @param posicao - posicao da lista a ser inserida/removida
+ * @param posicao - posicao da fila a ser inserida/removida
  */
-void manipularLista(Lista* lista, int codigo, int id, int posicao){
+void manipularFila(Fila* fila, int codigo, int id){
 	Jogador* tmp = NULL;
 
 	switch (codigo){
 	case 1:
-		inserirInicio(lista, ler(id));
+		inserir(fila, ler(id));
 		break;
 	case 2:
-		inserirFim(lista, ler(id));
-		break;
-	case 3:
-		inserir(lista, ler(id), posicao);
-		break;
-	case 4:
-		tmp = removerInicio(lista);
-		printf("(R) %s\n", tmp->nome);
-		tmp = NULL;	
-		break;
-	case 5:
-		tmp = removerFim(lista);
-		printf("(R) %s\n", tmp->nome);
-		tmp = NULL;	
-		break;
-	case 6:
-		tmp = remover(lista, posicao);
+		tmp = remover(fila);
 		printf("(R) %s\n", tmp->nome);
 		tmp = NULL;	
 		break;
@@ -577,13 +459,13 @@ void manipularLista(Lista* lista, int codigo, int id, int posicao){
 		break;
 	} // end switch
 
-} // end manipularLista()
+} // end manipularfila()
 
 /**
  * - Função que lê a priemira parte da entrada padrão. 
- * @param lista - lista linear.
+ * @param fila - fila linear.
  */
-void getPrimeiraEntrada(Lista* lista){
+void getPrimeiraEntrada(Fila* fila){
 	int idInt;
 	char* idInputStr = (char*)malloc(8 * sizeof(char));
 
@@ -592,9 +474,8 @@ void getPrimeiraEntrada(Lista* lista){
 	while(!isFIM(idInputStr)){
 		idInt = atoi(idInputStr);
 		
-		inserirFim(lista, ler(idInt));
-
-		// printf("%s\n", lista.array[lista.tamanho - 1]->nome);
+		inserir(fila, ler(idInt));
+		// printf("%s\n", fila.array[fila.tamanho - 1]->nome);
 		
 		scanf("%s", idInputStr);
 	} // end while
@@ -604,31 +485,28 @@ void getPrimeiraEntrada(Lista* lista){
 
 /**
  * - Função que lê a segunda parte da entrada padrão. 
- * @param lista - lista linear.
+ * @param fila - fila linear.
  */
-void getSegundaEntrada(Lista* lista){
-	int loop, id, posicao;
+void getSegundaEntrada(Fila* fila){
+	int loop, id;
 	int codigo = 0;
 	char* inputStr = (char*)malloc(25 * sizeof(char));
 	/* diagrama de codigos para comando: */ 
-	// (II) InserirInicio = 1 
-	// (IF) InserirFim = 2 
-	// (I*) Inserir = 3 
-	// (RI) RemoverInicio = 4 
-	// (RF) RemoverFim = 5 
-	// (R*) Remover = 6 
+	// (I) Inserir = 1
+	// (R) Remover = 2 
 
+	getchar();
 	scanf("%i", &loop);
 
 	while(loop >= 0){
-		// getchar();
 		fgets(inputStr, 25, stdin);
-		// scanf("%[^\n]", inputStr);
+
 		codigo = getCodigo(inputStr);
 		id = getIdentidade(codigo, inputStr);
-		posicao = getPosicao(codigo, inputStr);
 
-		manipularLista(lista, codigo, id, posicao);
+		// printf("antes manipular\n");
+		manipularFila(fila, codigo, id);
+		// printf("depois manipular\n");
 		
 		loop--;
 	} // end while
@@ -638,13 +516,13 @@ void getSegundaEntrada(Lista* lista){
 
 
 int main(void){
-	Lista listaLinear = newLista(500);
-	Lista *lista = &listaLinear;
+	Fila filaCircular = newFila(5);
+	Fila *fila = &filaCircular;
 
-	getPrimeiraEntrada(lista);	
-	getSegundaEntrada(lista);
+	getPrimeiraEntrada(fila);	
+	getSegundaEntrada(fila);
 
-	mostrarLista(lista);
+	mostrarFila(fila);
 
 	return 0;
 } // end main()

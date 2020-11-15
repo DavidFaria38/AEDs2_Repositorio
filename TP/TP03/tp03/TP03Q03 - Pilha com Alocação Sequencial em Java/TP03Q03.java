@@ -1,118 +1,49 @@
-class ListaLinear{
+class PilhaLinear{
     private Jogador[] array;
     private int tamanho;
- 
-    ListaLinear(int len){
+    
+    PilhaLinear(int len){
         this.array = new Jogador[len];
         this.tamanho = 0;
     } // end ListaLinear()
     
-    ListaLinear(){
+    PilhaLinear(){
         this(0);
     } // end ListaLinear()
-
-
+    
     public void mostrar(){
         for(int i = 0; i < this.tamanho; i++){
-            System.out.print("[" + i + "] ");
+            System.out.print("[" + i + "]");
             array[i].imprimir();
             System.out.println("");
         } // end for
     } // end mostrar()
 
-
-    public void inserirInicio(Jogador player) throws Exception {
+    public void inserir(Jogador player) throws Exception {
         if(this.tamanho >= array.length)
-            throw new Exception("ERRO: (II) lista esta cheia.");
-        else{
-            
-            for(int i = this.tamanho; i > 0; i--)
-                array[i] = array[i-1]; 
-
-            array[0] = player.clone();
-			this.tamanho++;
-			
-		} // end else
-    } // end inserirInicio ()
-
-    public void inserir(Jogador player, int posicao) throws Exception {
-        if(this.tamanho >= this.array.length)
-            throw new Exception("ERRO: (I*) lista esta cheia.");
-        else if((posicao >= this.tamanho) && (posicao < 0))
-            throw new Exception("ERRO: (I*) posicao invalida.");
-        else{
-
-            for(int i = this.tamanho; i > posicao; i--)
-                array[i] = array[i-1];
-			
-			array[posicao] = player.clone();
-			// System.out.println("O de cima");
-			// player.imprimir();
-			// System.out.println("");
-			// array[posicao].imprimir();
-			// System.out.println("\n");
-			this.tamanho++; 
-			
-        } // end else
-    } // end inserir ()
-
-    public void inserirFim(Jogador player) throws Exception {
-		// System.out.println("tamanho (IF): " + this.tamanho);
-        if(this.tamanho >= array.length)
-            throw new Exception("ERRO: (IF) lista esta cheia.");
+            throw new Exception("ERRO: Pilha esta cheia.");
         else{
             array[this.tamanho] = player.clone();
-			this.tamanho++;
-	
+            this.tamanho += 1;
         } // end else
-    } // end inserirFim ()
-
+    } // end inserir ()
     
-    public Jogador removerInicio() throws Exception {
+    public Jogador remover() throws Exception{
         Jogador tmp = null;
 
-        if(this.tamanho <= 0)
-            throw new Exception("ERRO: (RI) Lista esta vazia.");
-        
-		tmp = this.array[0];
-		this.tamanho--;
-		for(int i = 0; i < this.tamanho; i++)
-			array[i]  = array[i+1];
-
-		return tmp;
-    } // end removerInicio()
-
-    public Jogador remover(int posicao) throws Exception{
-		Jogador tmp = null;
-		if((posicao < 0) && (posicao > this.tamanho)){
-			throw new Exception("ERRO: (R*)");
-		} else{
-			tmp = this.array[posicao];
-			this.tamanho--;
-			for(int i = posicao; i < this.tamanho; i++){
-				this.array[i] = this.array[i+1];
-
-			} // end for
-		} // end else
-
-		return tmp;
-    } // end remover()
-    
-    public Jogador removerFim() throws Exception{
-        Jogador tmp = null;
-
+		// System.out.print("=== tamanho: " + this.tamanho + " ===");
         if(this.tamanho < 0)
-            throw new Exception("ERRO: (RF) Lista esta vazia.");
+		throw new Exception("ERRO: Pilha esta vazia.");
         else{
 			tmp = this.array[this.tamanho - 1];
-            this.tamanho--;
+            this.array[this.tamanho - 1] = null;
+            this.tamanho = this.tamanho - 1;
         } // end else
-
+		
         return tmp;
-    } // end removerFim()
+    } // end remover()
 
-
-} // end class ListaLinear()
+} // end class PilhaLinear()
 
 class Jogador{
 	private int id;
@@ -189,7 +120,6 @@ class Jogador{
 	  * - Imprime todos elementos contidos no obejeto.
 	  */
 	public void imprimir(){
-		// System.out.printf("[%d ## %s ## %d ## %d ## %d ## %s ## %s ## %s]\n", this.id, this.nome, this.altura, this.peso, this.anoNascimento, this.universidade, this.cidadeNascimento, this.estadoNascimento);
 		System.out.print(" ## " + this.nome + " ## " + this.altura + " ## " + this.peso + " ## " + this.anoNascimento + " ## " + this.universidade + " ## " + this.cidadeNascimento + " ## " + this.estadoNascimento + " ##");
 	} // end imprimir()
 
@@ -413,8 +343,7 @@ class Jogador{
 	} // end makeJogador()
 } // end Jogador
 
-
-public class TP03Q01{
+public class TP03Q03{
 	/**
 	 * - Metodo verifica se String é igual a "FIM".
 	 * @param s
@@ -424,53 +353,38 @@ public class TP03Q01{
 		return(s.equals("FIM"));
 	} // end isFIM()
 
-	private static int getComando(String[] str){
+	/**
+	 * Metodo retorna o codigo de comando de uma string.
+	 * @param line - String a ser verificada
+	 * @return valor inteiro correspondente ao codigo de comando
+	 */
+	private static int getComando(String line){
 		int result = 0;
+		String[] str = line.split("\\s+");
 
-		switch (str[0]) {
-			case "II":
-				result = 1;
-				break;
-			case "IF":
-				result = 3;
-				break;
-			case "I*":
-				result = 5;
-				break;
-			case "RI":
-				result = 2;
-				break;
-			case "RF":
-				result = 4;
-				break;
-			case "R*":
-				result = 6;
-				break;
-			default:
-				break;
-		} // end switch
-
+		if(str[0].charAt(0) == 'I'){
+			result = 1;
+		} else if(str[0].charAt(0) == 'R'){
+			result = 2;
+		} //end else
 		return result;
 	} // end getComando()
 
-	private static int getId(String[] str, int comando){
+	/**
+	 * Metodo retorna o id de comando de uma string.
+	 * @param line - String a ser verificada
+	 * @param comando - codiigo de comando
+	 * @return - valor inteiro correspondente ao id
+	 */
+	private static int getId(String line, int comando){
 		int result = 0;
+		String[] str = line.split("\\s+");
 
-		if(comando == 1 || comando == 3){
+		if(comando == 1){
 			result = Integer.parseInt(str[1]);
-		} else if(comando == 5){
-			result = Integer.parseInt(str[2]);
-		} //end else if
-
-		return result;
-	} // end getId()
-
-	private static int getPosicao(String[] str, int comando){
-		int result = 0;
-
-		if(comando >= 5){
-			result = Integer.parseInt(str[1]);
-		} // end if
+		} else{
+			result = 0;
+		}// end else
 
 		return result;
 	} // end getId()
@@ -481,7 +395,7 @@ public class TP03Q01{
 	 * @param player - Array de objeto
 	 * @return Valor inteiro representando a quantidade de registros realizados.
 	 */
-	private static void getPrimeiraEntrada(ListaLinear lista){
+	private static void getPrimeiraEntrada(PilhaLinear pilha){
 		int id = 0;
 		String input = "";
 
@@ -494,7 +408,7 @@ public class TP03Q01{
 			tmp.ler(id);
 			// tmp.imprimir();
 			try {
-				lista.inserirFim(tmp);
+				pilha.inserir(tmp);
 			} catch (Exception e) {
 				System.out.println("erro: " + e);
 			} // end catch
@@ -508,59 +422,36 @@ public class TP03Q01{
 	 * @param player - Array de objeto
 	 * @return Valor inteiro representando a quantidade de registros realizados.
 	 */
-	private static void getSegundaEntrada(ListaLinear lista){
-		int id, comando, posicao, n;
+	private static void getSegundaEntrada(PilhaLinear pilha){
+		int id, comando, n;
 		String input = "";
 		/* diagrama de codigos para comando: */ 
-		// (II) InserirInicio = 1 
-		// (RI) RemoverInicio = 2 
-		// (IF) InserirFim = 3 
-		// (RF) RemoverFim = 4 
-		// (I*) Inserir = 5 
-		// (R*) Remover = 6 
-
+		// (I) Inserir = 1 
+		// (R) Remover = 2 
+		
 		n = Integer.parseInt(MyIO.readLine());
 		while(n > 0){
 			input = MyIO.readLine();
 
 			Jogador tmp = new Jogador();
-			String[] inputList = input.split("\\s+");
 
-			comando = getComando(inputList);
-			id      = getId(inputList, comando);
-			posicao = getPosicao(inputList, comando);
+			comando = getComando(input);
+			id      = getId(input, comando);
 
 			try {
 				switch (comando){
 					case 1:
 						tmp.ler(id);
-						lista.inserirInicio(tmp);
+						pilha.inserir(tmp);
 						break;
 					case 2:
-						tmp = lista.removerInicio();
-						System.out.println("(R) " + tmp.getNome());
-						break;
-					case 3:
-						tmp.ler(id);
-						lista.inserirFim(tmp);
-						break;
-					case 4:
-						tmp = lista.removerFim();
-						System.out.println("(R) " + tmp.getNome());
-						break;
-					case 5:
-						tmp.ler(id);
-						lista.inserir(tmp, posicao);
-						break;
-					case 6:
-						tmp = lista.remover(posicao);
+						tmp = pilha.remover();
 						System.out.println("(R) " + tmp.getNome());
 						break;
 					default:
 						System.out.println("ERRO: comando invalido");
 						break;
 				} // end switch
-				// lista.inserirFim(tmp); // c eh jacu mano kkk
 			} catch (Exception e) {
 				System.out.println(e);
 			} // end catch
@@ -572,14 +463,13 @@ public class TP03Q01{
 
 	public static void main(String []arg){
 
-		ListaLinear lista = new ListaLinear(500);
-		// Jogador tmp = new Jogador();
+		PilhaLinear pilha = new PilhaLinear(500);
 		
-		getPrimeiraEntrada(lista);	
-		getSegundaEntrada(lista);
+		getPrimeiraEntrada(pilha);	
+		getSegundaEntrada(pilha);
 
 
-		lista.mostrar();
+		pilha.mostrar();
 	} // end main()
 }
 

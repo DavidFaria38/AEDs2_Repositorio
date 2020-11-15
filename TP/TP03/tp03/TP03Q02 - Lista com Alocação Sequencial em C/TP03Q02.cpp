@@ -446,6 +446,20 @@ bool isFIM(char* str){
 } // end isFIM()
 
 /**
+ * - Função que realiza a troca de elementos de dois Struct. 
+ * @param player - array de Struc que sera feita a troca.
+ * @param menor - index do array player qual sera feita a troca.
+ * @param i - index do array player qual sera feita a troca.
+ */
+void swap(Jogador** player, int menor, int i){
+	Jogador* temp = newJogador();
+
+	temp = clone(player[i]);
+	player[i] = clone(player[menor]);
+	player[menor] = clone(temp);
+} // end swap()
+
+/**
  * Metodo retorna o codigo de comando de uma string.
  * 
  * @param line 

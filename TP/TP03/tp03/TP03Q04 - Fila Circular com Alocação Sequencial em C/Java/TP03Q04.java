@@ -1,4 +1,63 @@
-public class Jogador{
+class FilaCircular{
+    private Jogador[] array;
+    private int primeiro;
+	private int ultimo;
+    
+    FilaCircular(int len){
+        this.array = new Jogador[len + 1];
+		this.primeiro = this.ultimo = 0;
+    } // end ListaLinear()
+    
+    FilaCircular(){
+        this(0);
+    } // end ListaLinear()
+
+	private void mostrarMediaAltura(){
+		double soma = 0;
+		int j = 0;
+        for(int i = this.primeiro; i != (this.ultimo) % this.array.length; i = (i+1) % this.array.length){
+			soma += array[i].getAltura();
+			j++;
+		} // end for
+		System.out.println(Math.round(soma/j));
+	} // end mostrarMediaAltura()
+	
+    public void mostrar(){
+		int j = 0;
+        for(int i = this.primeiro; i != (this.ultimo) % this.array.length; i = (i+1) % this.array.length, j++){
+            System.out.print("[" + j + "]");
+            array[i].imprimir();
+            System.out.println("");
+        } // end for
+    } // end mostrar()
+
+    public void inserir(Jogador player) throws Exception {
+        if(((this.ultimo + 1) % this.array.length) == primeiro){
+            // throw new Exception("ERRO: fila esta cheia.");
+			remover();
+		} // end if
+		array[this.ultimo] = player.clone();
+		this.ultimo = (this.ultimo + 1) % this.array.length;
+
+		mostrarMediaAltura();
+    } // end inserir ()
+    
+    public Jogador remover() throws Exception{
+        Jogador tmp = null;
+
+        if(this.ultimo == this.primeiro){
+			throw new Exception("ERRO: fila esta vazia.");
+		} else{
+			tmp = this.array[this.primeiro];
+			this.primeiro = (this.primeiro + 1) % this.array.length;
+        } // end else
+		
+        return tmp;
+    } // end remover()
+
+} // end class FilaCircular()
+
+class Jogador{
 	private int id;
 	private int altura;
 	private int peso;
@@ -73,7 +132,6 @@ public class Jogador{
 	  * - Imprime todos elementos contidos no obejeto.
 	  */
 	public void imprimir(){
-		// System.out.printf("[%d ## %s ## %d ## %d ## %d ## %s ## %s ## %s]\n", this.id, this.nome, this.altura, this.peso, this.anoNascimento, this.universidade, this.cidadeNascimento, this.estadoNascimento);
 		System.out.print(" ## " + this.nome + " ## " + this.altura + " ## " + this.peso + " ## " + this.anoNascimento + " ## " + this.universidade + " ## " + this.cidadeNascimento + " ## " + this.estadoNascimento + " ##");
 	} // end imprimir()
 
@@ -296,3 +354,140 @@ public class Jogador{
 		this.setEstadoNascimento(getEstadoNascimentoFromLine(fileLine, indexMarker));
 	} // end makeJogador()
 } // end Jogador
+
+public class TP03Q04{
+	/**
+	 * - Metodo verifica se String é igual a "FIM".
+	 * @param s
+	 * @return true ou false caso String seja igual a "FIM"
+	 */
+	private static boolean isFIM(String s){
+		return(s.equals("FIM"));
+	} // end isFIM()
+
+	/**
+	 * Metodo retorna o codigo de comando de uma string.
+	 * @param line - String a ser verificada
+	 * @return valor inteiro correspondente ao codigo de comando
+	 */
+	private static int getComando(String line){
+		int result = 0;
+		String[] str = line.split("\\s+");
+
+		if(str[0].charAt(0) == 'I'){
+			result = 1;
+		} else if(str[0].charAt(0) == 'R'){
+			result = 2;
+		} //end else
+		return result;
+	} // end getComando()
+
+	/**
+	 * Metodo retorna o id de comando de uma string.
+	 * @param line - String a ser verificada
+	 * @param comando - codigo de comando
+	 * @return - valor inteiro correspondente ao id
+	 */
+	private static int getId(String line, int comando){
+		int result = 0;
+		String[] str = line.split("\\s+");
+
+		if(comando == 1){
+			result = Integer.parseInt(str[1]);
+		} else{
+			result = 0;
+		}// end else
+
+		return result;
+	} // end getId()
+
+
+	/**
+	 * - Metodo para pegar a primeira parte da entrada, realiza o registo dos jogadores.
+	 * @param player - Array de objeto
+	 * @return Valor inteiro representando a quantidade de registros realizados.
+	 */
+	private static void getPrimeiraEntrada(FilaCircular fila){
+		int id = 0;
+		String input = "";
+
+		input = MyIO.readLine();
+		while(!isFIM(input)){
+			id = Integer.parseInt(input);	
+
+			Jogador tmp = new Jogador();
+
+			tmp.ler(id);
+			// tmp.imprimir();
+			try {
+				fila.inserir(tmp);
+			} catch (Exception e) {
+				System.out.println("erro: " + e);
+			} // end catch
+			
+			input = MyIO.readLine();
+		} // end while
+	} // end getPrimeira Entrada()
+	
+	/**
+	 * - Metodo para pegar a segunda parte da entrada, realiza o registo dos jogadores.
+	 * @param player - Array de objeto
+	 * @return Valor inteiro representando a quantidade de registros realizados.
+	 */
+	private static void getSegundaEntrada(FilaCircular fila){
+		int id, comando, n;
+		String input = "";
+		/* diagrama de codigos para comando: */ 
+		// (I) Inserir = 1 
+		// (R) Remover = 2 
+		
+		n = MyIO.readInt();
+		while(n > 0){
+			input = MyIO.readLine();
+			
+			Jogador tmp = new Jogador();
+
+			comando = getComando(input);
+			id      = getId(input, comando);
+
+			try {
+				switch (comando){
+					case 1:
+						tmp.ler(id);
+						fila.inserir(tmp);
+						break;
+					case 2:
+						tmp = fila.remover();
+						System.out.println("(R) " + tmp.getNome());
+						break;
+					default:
+						System.out.println("ERRO: comando invalido");
+						break;
+				} // end switch
+			} catch (Exception e) {
+				System.out.println(e);
+			} // end catch
+				
+			n--;
+		} // end while
+	} // end getPrimeira Entrada()
+	
+
+	public static void main(String []arg){
+
+		FilaCircular fila = new FilaCircular(5);
+		
+		getPrimeiraEntrada(fila);	
+		getSegundaEntrada(fila);
+
+		fila.mostrar();
+	} // end main()
+}
+
+
+
+
+
+
+
+

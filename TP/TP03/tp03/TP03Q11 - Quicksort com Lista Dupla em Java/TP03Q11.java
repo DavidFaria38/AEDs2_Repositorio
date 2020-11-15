@@ -1,118 +1,37 @@
-class ListaLinear{
-    private Jogador[] array;
-    private int tamanho;
- 
-    ListaLinear(int len){
-        this.array = new Jogador[len];
-        this.tamanho = 0;
-    } // end ListaLinear()
-    
-    ListaLinear(){
-        this(0);
-    } // end ListaLinear()
+class RecordAlgoritmo{
+	private int comp;
+	private int mov;
+	private double start;
+	private double end;
 
+/* ================= Construtores ================= */
+	public RecordAlgoritmo(){
+		mov = comp = 0;
+	} // end RecordAlgoritmo()
 
-    public void mostrar(){
-        for(int i = 0; i < this.tamanho; i++){
-            System.out.print("[" + i + "] ");
-            array[i].imprimir();
-            System.out.println("");
-        } // end for
-    } // end mostrar()
-
-
-    public void inserirInicio(Jogador player) throws Exception {
-        if(this.tamanho >= array.length)
-            throw new Exception("ERRO: (II) lista esta cheia.");
-        else{
-            
-            for(int i = this.tamanho; i > 0; i--)
-                array[i] = array[i-1]; 
-
-            array[0] = player.clone();
-			this.tamanho++;
-			
-		} // end else
-    } // end inserirInicio ()
-
-    public void inserir(Jogador player, int posicao) throws Exception {
-        if(this.tamanho >= this.array.length)
-            throw new Exception("ERRO: (I*) lista esta cheia.");
-        else if((posicao >= this.tamanho) && (posicao < 0))
-            throw new Exception("ERRO: (I*) posicao invalida.");
-        else{
-
-            for(int i = this.tamanho; i > posicao; i--)
-                array[i] = array[i-1];
-			
-			array[posicao] = player.clone();
-			// System.out.println("O de cima");
-			// player.imprimir();
-			// System.out.println("");
-			// array[posicao].imprimir();
-			// System.out.println("\n");
-			this.tamanho++; 
-			
-        } // end else
-    } // end inserir ()
-
-    public void inserirFim(Jogador player) throws Exception {
-		// System.out.println("tamanho (IF): " + this.tamanho);
-        if(this.tamanho >= array.length)
-            throw new Exception("ERRO: (IF) lista esta cheia.");
-        else{
-            array[this.tamanho] = player.clone();
-			this.tamanho++;
+/* ================= Metodos get ================= */
+	public int getComp(){return this.comp;}
+	public int getMov(){return this.mov;}
 	
-        } // end else
-    } // end inserirFim ()
+/* ================= Metodos set ================= */
+	public void sumCmp(int value){this.comp += value;}
+	public void sumMov(int value){this.mov += value;}
 
-    
-    public Jogador removerInicio() throws Exception {
-        Jogador tmp = null;
-
-        if(this.tamanho <= 0)
-            throw new Exception("ERRO: (RI) Lista esta vazia.");
-        
-		tmp = this.array[0];
-		this.tamanho--;
-		for(int i = 0; i < this.tamanho; i++)
-			array[i]  = array[i+1];
-
-		return tmp;
-    } // end removerInicio()
-
-    public Jogador remover(int posicao) throws Exception{
-		Jogador tmp = null;
-		if((posicao < 0) && (posicao > this.tamanho)){
-			throw new Exception("ERRO: (R*)");
-		} else{
-			tmp = this.array[posicao];
-			this.tamanho--;
-			for(int i = posicao; i < this.tamanho; i++){
-				this.array[i] = this.array[i+1];
-
-			} // end for
-		} // end else
-
-		return tmp;
-    } // end remover()
-    
-    public Jogador removerFim() throws Exception{
-        Jogador tmp = null;
-
-        if(this.tamanho < 0)
-            throw new Exception("ERRO: (RF) Lista esta vazia.");
-        else{
-			tmp = this.array[this.tamanho - 1];
-            this.tamanho--;
-        } // end else
-
-        return tmp;
-    } // end removerFim()
-
-
-} // end class ListaLinear()
+/* ================= Metodos time ================= */
+	public void startCurrentTime(){this.start = System.currentTimeMillis(); } 
+	public void endCurrentTime(){this.end = System.currentTimeMillis(); }
+	
+/* ================================================ */
+	/**
+	 * - Metodo que grava em um arquivo o tempo de execução do algoritmo de ordenação, movimentações e comparações.
+	 * @param fileWrite - Nome do arquivo.
+	 */
+	public void recordTime(String fileWrite){
+		Arq.openWrite(fileWrite);
+		Arq.println("699415\t" + (end-start)/1000 + "\t" + this.comp + "\t" + this.mov);
+		Arq.close();
+	} // end recordTime()
+} // end recordAlgoritmo
 
 class Jogador{
 	private int id;
@@ -189,8 +108,7 @@ class Jogador{
 	  * - Imprime todos elementos contidos no obejeto.
 	  */
 	public void imprimir(){
-		// System.out.printf("[%d ## %s ## %d ## %d ## %d ## %s ## %s ## %s]\n", this.id, this.nome, this.altura, this.peso, this.anoNascimento, this.universidade, this.cidadeNascimento, this.estadoNascimento);
-		System.out.print(" ## " + this.nome + " ## " + this.altura + " ## " + this.peso + " ## " + this.anoNascimento + " ## " + this.universidade + " ## " + this.cidadeNascimento + " ## " + this.estadoNascimento + " ##");
+		System.out.printf("[%d ## %s ## %d ## %d ## %d ## %s ## %s ## %s]\n", this.id, this.nome, this.altura, this.peso, this.anoNascimento, this.universidade, this.cidadeNascimento, this.estadoNascimento);
 	} // end imprimir()
 
 /* ============== (Start) ler ============== */
@@ -412,9 +330,166 @@ class Jogador{
 		this.setEstadoNascimento(getEstadoNascimentoFromLine(fileLine, indexMarker));
 	} // end makeJogador()
 } // end Jogador
+ 
+
+class Celula{
+	public Celula prox;
+	public Jogador elemento;
+	
+	Celula(Jogador player){
+		this.prox = new Celula();
+		this.elemento = player;
+	}
+
+	Celula(){
+		this.prox = null;
+		this.elemento = null;
+	}
+} // end class Celula
 
 
-public class TP03Q01{
+class ListaFlexivel{
+    private Celula primeiro, ultimo;
+    
+    ListaFlexivel(){
+		primeiro = new Celula();
+		ultimo = primeiro;
+	} // end ListaLinear()
+	
+	public int tamanho(){
+		int tamanho = 0;
+		for(Celula i = primeiro; i != ultimo; i = i.prox, tamanho++);
+		return tamanho;
+	} // end tamanho
+
+	public void swappNode(Celula cell_1, Celula cell_2){
+		Jogador tmp = cell_1.elemento.clone();
+		cell_1.elemento = cell_2.elemento.clone();
+		cell_2.elemento = tmp;
+		tmp = null;
+	} // end swappNode()
+
+	public Celula getNode(int posicao){
+		Celula node = null;
+		int tam = tamanho();
+		if((posicao < 0) && (posicao > tam)){
+			System.out.println("ERRO: (getNode) Posicao invalida");
+		} else if(posicao == 0){
+			node = this.primeiro.prox;
+		} else if(posicao == tam){
+			node = this.ultimo;
+		} else{
+			Celula i = this.primeiro.prox;
+			for(int j = 0; j < posicao; j++, i = i.prox); 
+			node = i;
+			i = null;
+		} // end else
+
+		return node;
+	} // end getNode()  
+    
+    public void mostrar(){
+        for(Celula i = primeiro.prox; i.prox != null; i = i.prox){
+			i.elemento.imprimir();
+        } // end for
+    } // end mostrar()
+
+    public void inserirInicio(Jogador player){
+		Celula tmp = new Celula(player);
+		tmp.prox = primeiro.prox;
+		primeiro.prox = tmp;
+		if(primeiro == ultimo){
+			ultimo = tmp;
+		} // end if
+		tmp = null;
+	} // end inserirInicio()
+
+    public void inserirFim(Jogador player){
+		ultimo.prox = new Celula(player);
+		ultimo = ultimo.prox;
+	} // end inserirFim()
+
+    public void inserir(Jogador player, int posicao){
+		int tamanho = tamanho();
+		if((posicao < 0) || (posicao > tamanho)){
+			System.out.printf("ERRO: (I*) Posicao invalida.");
+		} else if(posicao == 0){
+			inserirInicio(player);
+		} else if(posicao == tamanho){
+			inserirFim(player);
+		} else{
+			
+			Celula i = primeiro;
+			for(int j = 0; j < posicao; i = i.prox, j++);
+			
+			Celula tmp = new Celula(player);
+			tmp.prox = i.prox;
+			i.prox = tmp;
+			tmp = null;
+		} // end else
+	} // end inserir()
+	
+	
+    public Jogador removerInicio(){
+		Jogador playerTmp = null;
+
+		if(primeiro == ultimo){
+			System.out.println("ERRO: (RI) Lista nao populada.");
+		} else{
+			Celula tmp = primeiro;
+			primeiro = primeiro.prox;
+			playerTmp = primeiro.elemento.clone();
+			tmp.prox = null;
+			tmp = null;
+		} // end else
+		
+		return playerTmp;
+	} // end removerInicio()
+	
+    public Jogador removerFim(){
+		Jogador playerTmp = null;
+		
+		if(primeiro == ultimo){
+			System.out.println("ERRO: (RF) Lista nao populada.");
+		} else{
+			Celula i;
+			for(i = primeiro; i.prox != ultimo; i = i.prox);
+			
+			playerTmp = ultimo.elemento.clone();
+			ultimo = i;
+			i = ultimo.prox = null;
+		} // end else
+		
+		return playerTmp;
+	} // end removerFim()
+	
+    public Jogador remover(int posicao){
+		Jogador playerTmp = null;
+		int tamanho = tamanho();
+		
+		if((posicao < 0) || (posicao > tamanho)){
+			System.out.printf("ERRO: (R*) Posicao invalida.");
+		} else if(posicao == 0){
+			playerTmp = removerInicio();
+		} else if(posicao == tamanho){
+			playerTmp = removerFim();
+		} else{
+			
+			Celula i = primeiro;
+			for(int j = 0; j < posicao; i = i.prox, j++);
+			
+			Celula tmp = i.prox;
+			playerTmp = tmp.elemento.clone();
+			i.prox = tmp.prox;
+			tmp.prox = null;
+			i = tmp = null;
+		} // end else
+		return playerTmp;
+	} // end remover()
+
+} // end class ListaFlexivel()
+
+public class TP03Q11{
 	/**
 	 * - Metodo verifica se String é igual a "FIM".
 	 * @param s
@@ -424,8 +499,14 @@ public class TP03Q01{
 		return(s.equals("FIM"));
 	} // end isFIM()
 
-	private static int getComando(String[] str){
+	/**
+	 * Metodo retorna o codigo de comando de uma string.
+	 * @param line - String a ser verificada
+	 * @return valor inteiro correspondente ao codigo de comando
+	 */
+	private static int getComando(String line){
 		int result = 0;
+		String[] str = line.split("\\s+");
 
 		switch (str[0]) {
 			case "II":
@@ -450,11 +531,20 @@ public class TP03Q01{
 				break;
 		} // end switch
 
+		// System.out.println("codigo: " + line + " - " + str[0] + " > " + result);
+
 		return result;
 	} // end getComando()
 
-	private static int getId(String[] str, int comando){
+	/**
+	 * Metodo retorna o id de comando de uma string.
+	 * @param line - String a ser verificada
+	 * @param comando - codiigo de comando
+	 * @return - valor inteiro correspondente ao id
+	 */
+	private static int getId(String line, int comando){
 		int result = 0;
+		String[] str = line.split("\\s+");
 
 		if(comando == 1 || comando == 3){
 			result = Integer.parseInt(str[1]);
@@ -462,26 +552,36 @@ public class TP03Q01{
 			result = Integer.parseInt(str[2]);
 		} //end else if
 
+		// System.out.println("Id: " + str[1] + " (" + result + ")");
+
 		return result;
 	} // end getId()
 
-	private static int getPosicao(String[] str, int comando){
+	/**
+	 * - Metodo retorna a posicao dentro da string
+	 * @param line - String a ser verificada
+	 * @param comando - codiigo de comando
+	 * @return - valor inteiro correspondente a posicao
+	 */
+	private static int getPosicao(String line, int comando){
 		int result = 0;
+		String[] str = line.split("\\s+");
 
 		if(comando >= 5){
 			result = Integer.parseInt(str[1]);
 		} // end if
 
+		// System.out.println("Posicao: " + str[1] + " (" + result + ")");
+
 		return result;
 	} // end getId()
-
 
 	/**
 	 * - Metodo para pegar a primeira parte da entrada, realiza o registo dos jogadores.
 	 * @param player - Array de objeto
 	 * @return Valor inteiro representando a quantidade de registros realizados.
 	 */
-	private static void getPrimeiraEntrada(ListaLinear lista){
+	private static void getPrimeiraEntrada(ListaFlexivel lista){
 		int id = 0;
 		String input = "";
 
@@ -492,12 +592,7 @@ public class TP03Q01{
 			Jogador tmp = new Jogador();
 
 			tmp.ler(id);
-			// tmp.imprimir();
-			try {
-				lista.inserirFim(tmp);
-			} catch (Exception e) {
-				System.out.println("erro: " + e);
-			} // end catch
+			lista.inserirFim(tmp);
 			
 			input = MyIO.readLine();
 		} // end while
@@ -508,7 +603,7 @@ public class TP03Q01{
 	 * @param player - Array de objeto
 	 * @return Valor inteiro representando a quantidade de registros realizados.
 	 */
-	private static void getSegundaEntrada(ListaLinear lista){
+	private static void getSegundaEntrada(ListaFlexivel lista){
 		int id, comando, posicao, n;
 		String input = "";
 		/* diagrama de codigos para comando: */ 
@@ -518,68 +613,116 @@ public class TP03Q01{
 		// (RF) RemoverFim = 4 
 		// (I*) Inserir = 5 
 		// (R*) Remover = 6 
-
+		
 		n = Integer.parseInt(MyIO.readLine());
 		while(n > 0){
 			input = MyIO.readLine();
 
 			Jogador tmp = new Jogador();
-			String[] inputList = input.split("\\s+");
 
-			comando = getComando(inputList);
-			id      = getId(inputList, comando);
-			posicao = getPosicao(inputList, comando);
+			comando = getComando(input);
+			id      = getId(input, comando);
+			posicao = getPosicao(input, comando);
 
-			try {
-				switch (comando){
-					case 1:
-						tmp.ler(id);
-						lista.inserirInicio(tmp);
-						break;
-					case 2:
-						tmp = lista.removerInicio();
-						System.out.println("(R) " + tmp.getNome());
-						break;
-					case 3:
-						tmp.ler(id);
-						lista.inserirFim(tmp);
-						break;
-					case 4:
-						tmp = lista.removerFim();
-						System.out.println("(R) " + tmp.getNome());
-						break;
-					case 5:
-						tmp.ler(id);
-						lista.inserir(tmp, posicao);
-						break;
-					case 6:
-						tmp = lista.remover(posicao);
-						System.out.println("(R) " + tmp.getNome());
-						break;
-					default:
-						System.out.println("ERRO: comando invalido");
-						break;
-				} // end switch
-				// lista.inserirFim(tmp); // c eh jacu mano kkk
-			} catch (Exception e) {
-				System.out.println(e);
-			} // end catch
-
+			switch (comando){
+				case 1:
+					tmp.ler(id);
+					lista.inserirInicio(tmp);
+					break;
+				case 2:
+					tmp = lista.removerInicio();
+					System.out.println("(R) " + tmp.getNome());
+					break;
+				case 3:
+					tmp.ler(id);
+					lista.inserirFim(tmp);
+					break;
+				case 4:
+					tmp = lista.removerFim();
+					System.out.println("(R) " + tmp.getNome());
+					break;
+				case 5:
+					tmp.ler(id);
+					lista.inserir(tmp, posicao);
+					break;
+				case 6:
+					tmp = lista.remover(posicao);
+					System.out.println("(R) " + tmp.getNome());
+					break;
+				default:
+					System.out.println("ERRO: comando invalido");
+					break;
+			} // end switch
 			n--;
 		} // end while
 	} // end getPrimeira Entrada()
-	
+
+	private static void quicksort_recur(ListaFlexivel lista, int esq, int dir, RecordAlgoritmo record){
+		int i = esq, j = dir;
+		String pivoEstado = lista.getNode((esq+dir)/2).elemento.getEstadoNascimento();
+		String pivoNome = lista.getNode((esq+dir)/2).elemento.getNome();
+		record.sumMov(2);
+
+		while(i <= j){
+			while((lista.getNode(i).elemento.getEstadoNascimento().compareTo(pivoEstado) < 0) || 
+				  ((lista.getNode(i).elemento.getEstadoNascimento().compareTo(pivoEstado) == 0) && 
+				  (lista.getNode(i).elemento.getNome().compareTo(pivoNome) < 0)) ){ 
+				// System.out.println("i: " + i);
+				// System.out.println(lista.getNode(i).elemento.getEstadoNascimento() + " -- " + pivoEstado);
+				// System.out.println(lista.getNode(i).elemento.getNome() + " -- " + pivoNome);
+				record.sumCmp(3);
+				i++;
+
+			} // end while
+
+			// System.out.println("======================\npassou i: "+i+" | j: "+j+"\n======================");
+
+			while((lista.getNode(j).elemento.getEstadoNascimento().compareTo(pivoEstado) > 0) || 
+				  ((lista.getNode(j).elemento.getEstadoNascimento().compareTo(pivoEstado) == 0) && 
+				  (lista.getNode(j).elemento.getNome().compareTo(pivoNome) > 0)) ){
+				// System.out.println("j: " + j);
+				// System.out.println(lista.getNode(j).elemento.getEstadoNascimento() + " -- " + pivoEstado);
+				// System.out.println(lista.getNode(j).elemento.getNome() + " -- " + pivoNome);
+				record.sumCmp(3);
+				j--;
+			} // end while
+
+			// System.out.println("======================\npassou j: "+j+" | i: "+i+"\n======================");
+
+			if(i <= j){
+				lista.swappNode(lista.getNode(i), lista.getNode(j));
+				i++; j--;
+			} // end if
+		} // end while
+
+		if(esq < j)
+			quicksort_recur(lista, esq, j, record);
+		if(i < dir)
+			quicksort_recur(lista, i, dir, record);
+	} // end quicksort_recur()
+
+	/**
+	 * - Metodo que ordena (quicksort) uma lista dupla, tendo como key o Estado de nascimento.
+	 * @param lista - lista dupla.
+	 * @param record - Armazenas os status do metodo.
+	 */
+	private static void quicksort(ListaFlexivel lista, RecordAlgoritmo record){
+		quicksort_recur(lista, 0, lista.tamanho() - 1, record);
+	} // end quicksort_Parcial()
 
 	public static void main(String []arg){
 
-		ListaLinear lista = new ListaLinear(500);
-		// Jogador tmp = new Jogador();
+		RecordAlgoritmo record = new RecordAlgoritmo();
+		ListaFlexivel lista = new ListaFlexivel();
 		
 		getPrimeiraEntrada(lista);	
-		getSegundaEntrada(lista);
-
+		
+		record.startCurrentTime();
+		quicksort(lista, record);
+		record.endCurrentTime();
 
 		lista.mostrar();
+		record.recordTime("699415_quicksort2.txt");
 	} // end main()
 }
 
