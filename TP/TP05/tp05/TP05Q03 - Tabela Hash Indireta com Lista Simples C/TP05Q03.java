@@ -419,19 +419,74 @@ class Jogador {
 	} // end makeJogador()
 } // end Jogador
 
-class HashDiretoRehash {
-	Jogador tabela[];
+class Celula{
+	Jogador elemento;
+	Celula prox;
+
+	Celula(){
+		this(null);
+	}
+	Celula(Jogador player){
+		elemento = player;
+		prox = null;
+	}
+} // end class Celula
+
+class Lista{
+	Celula primeiro;
+	Celula ultimo;
+
+	Lista(){
+		primeiro = new Celula();
+		ultimo = primeiro;
+	}
+
+	public void inserirFim_lista(Lista list, Jogador x){
+		list.ultimo.elemento = x.clone();
+		list.ultimo.prox = new Celula();
+		list.ultimo = list.ultimo.prox;
+	} // end inserirFim_lista
+
+	public boolean pesquisar_lista(String elemento, RecordAlgoritmo record){
+		boolean result = false;
+
+		if(primeiro != ultimo){
+			Celula i = primeiro;
+			for(; (i != ultimo) && (result != true); i = i.prox){
+				if(i.elemento.getNome().compareTo(elemento) == 0){
+					result = true;
+				} // end if
+				record.sumCmp(1);
+			} // end for
+		} // end if
+
+		return result;
+	} // end pesquisar_lista()
+
+	public void showLista(){
+		if(primeiro != ultimo){
+			for(Celula i = primeiro; i != ultimo; i = i.prox){
+				System.out.printf("%s ", i.elemento.getNome());
+			} // end for
+			System.out.print("\n\n");
+		} // end if
+	} // end showLista()
+} // end class Lista
+
+
+class Hash {
+	Lista tabela[];
 	int hashLen;
 	
-	public HashDiretoRehash (){
+	public Hash (){
 		this(13);
 	}
 	
-	public HashDiretoRehash (int hashLen){
+	public Hash (int hashLen){
 		this.hashLen = hashLen;
-		this.tabela = new Jogador[this.hashLen];
+		this.tabela = new Lista[this.hashLen];
 		for(int i = 0; i < hashLen; i++){
-			tabela[i] = null;
+			tabela[i] = new Lista();
 		} // end for
 	}
 	
@@ -439,10 +494,6 @@ class HashDiretoRehash {
 		return (elemento.getAltura() % hashLen);
 	} // end h()
 	
-	public int reh(Jogador elemento){
-		// return ((elemento.getAltura() % hashLen) + 1);
-		return ((elemento.getAltura() + 1) % hashLen);
-	} // end h()
 	
 	public boolean inserir (Jogador elemento, RecordAlgoritmo record){
 		boolean resp = false;
@@ -450,66 +501,38 @@ class HashDiretoRehash {
 		if(elemento != null){
 
 			int pos = h(elemento);
-			
-			if(tabela[pos] == null){
-				tabela[pos] = elemento.clone();
-				resp = true;
-				// System.out.println("+ inserido " + elemento.getAltura() + " \t" + elemento.getNome() + "\t" + elemento.getAltura() % hashLen);
-				
-			} else{
-				
-				pos = reh(elemento);
-				
-				if(tabela[pos] == null){
-					tabela[pos] = elemento.clone();
-					resp = true;
-					// System.out.println("- inserido " + elemento.getAltura() + " \t" + elemento.getNome() + "\t" + ((elemento.getAltura() % hashLen) +1) + "\t" + (elemento.getAltura() % hashLen));
-					// System.out.println("- inserido " + elemento.getAltura() + " \t" + elemento.getNome() + "\t" + ((elemento.getAltura() + 1) % hashLen) + "\t" + (elemento.getAltura() % hashLen));
-				} 
-				// else{
-				// 	if((pos < hashLen - 1) && (tabela[pos+1] != null)){
-				// 		int modTmp = h(tabela[pos + 1]);
-				// 		if(modTmp == pos+1){
-				// 			tabela[pos + 1] = tabela[pos];
-				// 			tabela[pos] = elemento.clone();
-				// 			System.out.println("/ inserido " + elemento.getAltura() + " \t" + elemento.getNome() + "\t" + ((elemento.getAltura() + 1) % hashLen) + "\t" + (elemento.getAltura() % hashLen));
-				// 		}
-				// 	} else{
-
-				// 		System.out.println("* noooooop " + elemento.getAltura() + " \t" + elemento.getNome() + "\t" + ((elemento.getAltura() + 1) % hashLen) + "\t" + (elemento.getAltura() % hashLen));
-				// 	}
-					
-				// }
-			} // end else if
+			// inserirFim_lista(tabela[pos], elemento);
+			tabela[pos].ultimo.elemento = elemento.clone();
+			tabela[pos].ultimo.prox = new Celula();
+			tabela[pos].ultimo = tabela[pos].ultimo.prox;
 		} //end if
 		
 		return resp;
 	} // end inserir()
 	
-	public boolean pesquisar_Nome (String player, RecordAlgoritmo record){
-		boolean resp = false;
+	public boolean pesquisar_hash (String player, RecordAlgoritmo record){
+		boolean result = false;
 		
-		for(int pos = 0; pos < hashLen; pos++){
-			if((tabela[pos] != null) && (tabela[pos].getNome().compareTo(player) == 0)){
-				resp = true;
-				pos = hashLen;
+		for(int pos = 0; (pos < hashLen) && (result != true); pos++){
+			if(tabela[pos].pesquisar_lista(player, record) == true){
+				result = true;
 			} // end if
 			record.sumCmp(1);
 		} // end for
 
-		return resp;
-	} // end pesquisar()
+		return result;
+	} // end pesquisar_hash()
 	
-} // end class hashDiretoRehash
+} // end class hash
 
-public class TP05Q02 {
+public class TP05Q03 {
 	/**
 	 * - Metodo para pegar a primeira parte da entrada, realiza o registo dos
 	 * jogadores.
 	 * 
 	 * @param hash    - Estrutura Hash.
 	 */
-	private static void getPrimeiraEntrada(HashDiretoRehash hash, RecordAlgoritmo record) {
+	private static void getPrimeiraEntrada(Hash hash, RecordAlgoritmo record) {
 		int id = 0;
 		String input = "";
 
@@ -535,14 +558,14 @@ public class TP05Q02 {
 	 * @param hash    - Estrutura Hash.
 	 * @param record - Armazena comparacoes e tempo de execucao do algoritmo.
 	 */
-	private static void getSegundaEntrada(HashDiretoRehash hash, RecordAlgoritmo record) {
+	private static void getSegundaEntrada(Hash hash, RecordAlgoritmo record) {
 		String input = "";
 		
 		input = MyIO.readLine();
 		while (!input.equals("FIM")) {
 			record.sumCmp(1);
 
-			if(hash.pesquisar_Nome(input, record) == true){
+			if(hash.pesquisar_hash(input, record) == true){
 				System.out.println(input + " SIM");
 			} else{
 				System.out.println(input + " NAO");
@@ -553,8 +576,8 @@ public class TP05Q02 {
 	} // end getPrimeira Entrada()
 
 	public static void main(String[] arg) {
-		RecordAlgoritmo record = new RecordAlgoritmo("699415_hashRehash.txt");
-		HashDiretoRehash hash = new HashDiretoRehash(21);
+		RecordAlgoritmo record = new RecordAlgoritmo("699415_hashIndireta.txt");
+		Hash hash = new Hash(21);
 
 		record.startRecordingTime();
 		getPrimeiraEntrada(hash, record);

@@ -634,7 +634,7 @@ void getSegundaEntrada(Hash* hash, StatusOrd* record)
 int main(void)
 {
 	StatusOrd* record = newStatusOrd("699415_hashIndireta.txt");
-	Hash *hash = newHash(25);
+	Hash *hash = newHash(21);
 
 	startClock(record);
 	getPrimeiraEntrada(hash);
