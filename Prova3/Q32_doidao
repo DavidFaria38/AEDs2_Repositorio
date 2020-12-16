@@ -1,0 +1,82 @@
+t1 = Hash com reserva, tamanho TAM
+t1 - t2 = hash que aponta para avl
+t1 - t3 = hash com rehash, tamanho TAM
+t1 - t4 = hash, tamanho TAM + TAMRESERVA
+
+int somarAVL(NoAVL raiz){ // arvore avl
+	return somrT2(raiz);
+}
+int somarAVL(NoAVL no){ // arvore avl
+	int soma = 0;
+	
+	if (i != null) {
+		soma += somar(no.esq); // Elementos da esquerda.
+		soma += somar(no.dir); // Elementos da direita.
+	}
+	
+	return (soma + no.elemento);
+}
+
+int somarT2(){ // tabela hash aponta para arvore avl
+	int soma = 0;
+	
+	for(int i = 0; (i < tam) && (hash[i] != null); i++){ // somar T1
+		soma += (hash[i].raiz);
+	} 
+	
+	return soma;
+}
+
+int somarT3(){ // tabela hash com rehash
+	int soma = 0;
+	
+	for(int i = 0; (i < tam) && (hash[i] != null); i++){ // somar T1
+		soma += hash[i].elemento
+	}
+	
+	return soma;
+}
+int somarT4(){ // tabela hash com reserva TAMRESERVA
+	int soma = 0;	
+	
+	for(int i = 0; (i < tam + tamreserva) && (hash[i] != null); i++){ // somar T1
+		soma += hash[i].elemento
+	}
+	
+	return soma;
+}
+
+int somarDoidao(){
+	int soma = 0;
+	
+	for(int i = 0; (i < tam) && (hash[i] != null); i++){ // somar T1
+		soma += hash[i].elemento
+	} 
+	
+	soma += hash[tam].somarT2() // somar T2
+	soma += hash[tam+1].somarT3() // somar T3
+	soma += hash[tam+2].somarT4() // somar T4
+	
+	return soma;
+}
+
+
+===========================================
+==== Análise de complexidade do método ====
+===========================================
+
+n = tam 
+r = tamreserva
+
+
+t1 faz n comparacoes (cmp) e n + 3 acessos
+t2 faz n cmp e n acessos
+t3 faz n cmp e n acessos 
+t4 faz (n + r) cmp e (n + r) acessos
+
+Acessos     = O( n + r ) 
+Comparacoes = O( n + r )
+
+===========================================
+===========================================
+===========================================
