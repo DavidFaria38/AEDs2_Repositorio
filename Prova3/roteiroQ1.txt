@@ -1,0 +1,29 @@
+bom noite,
+Esta eh a questa 31 da prova 3 de AEDs2
+
+Este mostrar eh um metodo recursivo.
+
+a variavel jaEntrou serve pra informar quando ja tivermos entrado em uma celula filho da celula atual
+assim nao deixando concatenear o caractere da celula duas vezes.
+
+a variavel countFolha tem uma funcao similiar mas eh pra que a frase toda nao se repitta.
+
+primeiro de tudo chamamos a funcao has filho more than one filho, que verifica na tabela 
+hash da avore trie, em que possui todos os filhos da celula atual. 
+caso a tabela possuir 1 ou mais de um filho, 
+ela retorna TRUE, e false se nao tiver nenhum filho.
+
+caso cell possua mais de um filho entramos no if e iremos passar pela tabela hash novamente, 
+e agora caso nunca tenhamos entrada num filho da celula atual, entao jaEntrou e false, 
+ele concatenea o elemento de cell e define jaEntrou como true. 
+agora ele nao vai mais concatenear o caractere desta celula novamente.
+
+Depois verificamos se cell.isFolha eh true, ouse ja, estamos no final da palavra?
+e tambem se countFolha eh igual a zero, ou seja, ja printei essa palavra antes?
+caso a condional for true, entao printamos STR, add +1 a countFolha e chamamos a funcao recursivamente.
+caso a condional for false, entao so chamamos a funcao.
+
+
+agora para o caso em que has filho more than one filho seja false, em outras palavras, 
+a celula nao possui nenhum filho.
+ele vai concatenear o ultimo elemento deste braco da arvore a STR e printara na tela.
