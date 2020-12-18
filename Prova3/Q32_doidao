@@ -21,7 +21,7 @@ int somarT2(){ // tabela hash aponta para arvore avl
 	int soma = 0;
 	
 	for(int i = 0; (i < tam) && (hash[i] != null); i++){ // somar T1
-		soma += somarAVL(hash[i].raiz);
+		soma += (hash[i].raiz);
 	} 
 	
 	return soma;
@@ -59,8 +59,6 @@ int somarDoidao(){
 	
 	return soma;
 }
-
-
 
 
 ===========================================

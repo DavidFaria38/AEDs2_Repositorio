@@ -159,13 +159,12 @@ public class ArvoreTrie{
 		mostrar(raiz, "");
         System.out.println("================================\n");
 	} // end mostrar()
-
 	private void mostrar(Celula cell, String str){
-		boolean jaEntrou = false; 
+		boolean jaEntrou = false;
 		int countFolha = 0;
 		if(hasFilhoMoreThanOneFilho(cell)){
 			
-			for(int i = 65; i < 91; i++){ // 65 = 'A' | 91 ('Z' + 1)
+			for(int i = 65; i < 91; i++){ // pocura dentro de uma tabela hash todas as letrar maiusculas
 				if(cell.tabela[i] != null){ // caso exista uma celula dentro da tabela hash
 					if(jaEntrou == false){ 
 						str += cell.elemento;
